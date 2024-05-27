@@ -1,0 +1,72 @@
+from csv import DictReader
+import csv
+import tkinter as tk
+from tkinter import filedialog
+
+root = tk.Tk()
+root.withdraw()
+val = float(input("Ingrese la cantidad medida en mts: ") )
+
+def percentje_measurement(lines,count,measurements):
+    inc = 0
+    new_line_group_cleaned = []
+    for measurement in measurements:
+        cols = measurement.split("\t")
+        percentaje = float(lines/count)*float(inc)
+        inc = inc + 1
+        measurement = measurement + '\t' + str(percentaje) + '\n'
+        new_line_group_cleaned.append(measurement)
+        print(measurement)
+    return new_line_group_cleaned
+
+fields = []
+rows = []
+line_data =  []
+all_line_data =  []
+line = -1
+mess = 0
+count = 0
+messFixed = -1
+totalEntries = 0
+alreadyAdded = False
+file_to_process = filedialog.askopenfilename()
+with open(file_to_process, 'r') as csvfile:
+    csvreader = csv.reader(csvfile)
+    fields = next(csvreader)
+    for row in csvreader:
+        rows.append(row)
+    print("Total no. of rows: %d" % (csvreader.line_num))
+    all_line_data.append('reading\tline\tConductivity1\tInphase1\tConductivity2\tInphase2\tTime\tDate\tX\tY')
+    for row in rows:
+        cols = row[0].split("\t")
+        if count == 0:
+            mess = cols[0]
+            messFixed = int(cols[0]) - int(mess)
+            row[0] += '\t' + str(messFixed)
+            line_data.append(row[0])
+            alreadyAdded = True
+        else:
+            if line != cols[1]:
+                mess = cols[0]
+                messFixed = int(cols[0]) - int(mess)
+                row[0] += '\t' + str(messFixed)
+                all_line_data.append(percentje_measurement(val,count-1,line_data))
+                line_data = []
+                count = 0
+        messFixed = int(cols[0]) - int(mess)
+        line = cols[1]
+        row[0] += '\t' + str(messFixed)
+        if alreadyAdded == False:
+            line_data.append(row[0])
+        count = count + 1
+        alreadyAdded = False
+    all_line_data.append(percentje_measurement(val,count-1,line_data))
+    print('Data fixed, now creating the new CSV file')
+    #print(all_line_data)
+    destination_path = filedialog.asksaveasfilename(defaultextension='.xyz')
+    file = open(destination_path,"w")
+    for unit in all_line_data:
+        file.writelines(unit)
+        file.writelines('\n')
+    file.close()
+    print('Done creating output file, check manually, validate and use in GIS')
