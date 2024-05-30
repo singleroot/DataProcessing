@@ -40,21 +40,21 @@ with open(file_to_process, 'r') as csvfile:
     for row in rows:
         cols = row[0].split("\t")
         if count == 0:
-            mess = cols[0]
-            messFixed = int(cols[0]) - int(mess)
+            mess = cols[1]
+            messFixed = int(cols[1]) - int(mess)
             row[0] += '\t' + str(messFixed)
             line_data.append(row[0])
             alreadyAdded = True
         else:
-            if line != cols[1]:
-                mess = cols[0]
-                messFixed = int(cols[0]) - int(mess)
+            if line != cols[0]:
+                mess = cols[1]
+                messFixed = int(cols[1]) - int(mess)
                 row[0] += '\t' + str(messFixed)
                 all_line_data.append(percentje_measurement(val,count-1,line_data))
                 line_data = []
                 count = 0
-        messFixed = int(cols[0]) - int(mess)
-        line = cols[1]
+        messFixed = int(cols[1]) - int(mess)
+        line = cols[0]
         row[0] += '\t' + str(messFixed)
         if alreadyAdded == False:
             line_data.append(row[0])
@@ -63,7 +63,7 @@ with open(file_to_process, 'r') as csvfile:
     all_line_data.append(percentje_measurement(val,count-1,line_data))
     print('Data fixed, now creating the new CSV file')
     #print(all_line_data)
-    destination_path = filedialog.asksaveasfilename(defaultextension='.xyz')
+    destination_path = filedialog.asksaveasfilename(defaultextension='.csv')
     file = open(destination_path,"w")
     for unit in all_line_data:
         file.writelines(unit)
